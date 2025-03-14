@@ -36,6 +36,21 @@ YPolicy = Literal['default']
 DEQUANT_DIST = Literal['uniform', 'beta', 'round', 'none']
 
 
+class SigmaScaler(StandardScaler):
+    """Scale the data to have zero mean and desired standard deviation."""
+    def __init__(self, sigma_data=1.0, **kwargs):
+        super(SigmaScaler, self).__init__(**kwargs)
+        self.sigma_data = sigma_data
+
+    def fit(self, X, y=None):
+        return super(SigmaScaler, self).fit(X, y)
+
+    def transform(self, X, y=None):
+        return super(SigmaScaler, self).transform(X, y) * self.sigma_data
+
+    def inverse_transform(self, X, y=None):
+        return super(SigmaScaler, self).inverse_transform(X / self.sigma_data, y)
+    
 class StandardScaler1d(StandardScaler):
     def partial_fit(self, X, *args, **kwargs):
         assert X.ndim == 1
@@ -211,10 +226,11 @@ def num_process_nans(dataset: Dataset, policy: Optional[NumNanPolicy]) -> Datase
 
 # Inspired by: https://github.com/yandex-research/rtdl/blob/a4c93a32b334ef55d2a0559a4407c8306ffeeaee/lib/data.py#L20
 def normalize(
-    X: ArrayDict, normalization: Normalization, seed: Optional[int], return_normalizer : bool = False
+    X: ArrayDict, normalization: Normalization, seed: Optional[int], return_normalizer : bool = False, sigma_data: float = 1.0
 ) -> ArrayDict:
     X_train = X['train']
     if normalization == 'standard':
+        assert sigma_data == 1.0
         normalizer = sklearn.preprocessing.StandardScaler()
     elif normalization == 'minmax':
         normalizer = sklearn.preprocessing.MinMaxScaler()
@@ -235,6 +251,12 @@ def normalize(
         #     )
     else:
         util.raise_unknown('normalization', normalization)
+
+    if normalization != "standard":
+        # Ensure the data has uniform variance across all columns (https://arxiv.org/pdf/2206.00364 Section 2)
+        print(f"Scaling data to {sigma_data} standard deviation!")
+        normalizer = make_pipeline(normalizer, SigmaScaler(sigma_data=sigma_data))
+        print("Std. data =", normalizer.fit_transform(X_train).std(axis=0))
 
     normalizer.fit(X_train)
     if return_normalizer:
@@ -403,6 +425,7 @@ class Transformations:
     y_policy: Optional[YPolicy] = 'default'
     dequant_dist: Optional[DEQUANT_DIST] = None
     int_dequant_factor: Optional[float] = 0.0
+    sigma_data: Optional[float] = 1.0
 
 
 def transform_dataset(
@@ -457,7 +480,8 @@ def transform_dataset(
                 X_num,
                 transformations.normalization,
                 transformations.seed,
-                return_normalizer=True
+                return_normalizer=True,
+                sigma_data=transformations.sigma_data
             )
             num_transform = num_transform
     

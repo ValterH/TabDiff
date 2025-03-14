@@ -24,13 +24,13 @@ class TabularDataset(Dataset):
         return self.X_num.shape[0]
     
 class TabDiffDataset(Dataset):
-    def __init__(self, dataname, data_dir, info, isTrain=True, y_only=False, dequant_dist='none', int_dequant_factor=0.0):
+    def __init__(self, dataname, data_dir, info, isTrain=True, y_only=False, dequant_dist='none', int_dequant_factor=0.0, sigma_data=1.0):
         self.dataname = dataname
         self.data_dir = data_dir
         self.info = info
         self.isTrain = isTrain
 
-        X_num, X_cat, categories, d_numerical, num_inverse, int_inverse, cat_inverse = preprocess(data_dir, y_only, dequant_dist, int_dequant_factor, task_type = info['task_type'], inverse=True)
+        X_num, X_cat, categories, d_numerical, num_inverse, int_inverse, cat_inverse = preprocess(data_dir, y_only, dequant_dist, int_dequant_factor, task_type = info['task_type'], inverse=True, sigma_data=sigma_data)
         categories = np.array(categories)
 
         X_train_num, _ = X_num
@@ -55,7 +55,7 @@ class TabDiffDataset(Dataset):
     def __len__(self):
         return self.X.shape[0]
 
-def preprocess(dataset_path, y_only=False, dequant_dist='none', int_dequant_factor=0.0, task_type = 'binclass', inverse = False, cat_encoding = None, concat = True):
+def preprocess(dataset_path, y_only=False, dequant_dist='none', int_dequant_factor=0.0, task_type = 'binclass', inverse = False, cat_encoding = None, concat = True, sigma_data=1.0):
     
     T_dict = {}
 
@@ -67,6 +67,7 @@ def preprocess(dataset_path, y_only=False, dequant_dist='none', int_dequant_fact
     T_dict['y_policy'] = "default"
     T_dict['dequant_dist'] = dequant_dist
     T_dict['int_dequant_factor'] = int_dequant_factor
+    T_dict['sigma_data'] = sigma_data
 
     T = src.Transformations(**T_dict)
 

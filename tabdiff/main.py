@@ -122,8 +122,9 @@ def main(args):
 
     ## Load training data
     batch_size = raw_config['train']['main']['batch_size']
-
-    train_data = TabDiffDataset(dataname, data_dir, info, y_only=args.y_only, isTrain=True, dequant_dist=raw_config['data']['dequant_dist'], int_dequant_factor=raw_config['data']['int_dequant_factor'])
+    sigma_data = raw_config['diffusion_params']['edm_params']['sigma_data']
+    
+    train_data = TabDiffDataset(dataname, data_dir, info, y_only=args.y_only, isTrain=True, dequant_dist=raw_config['data']['dequant_dist'], int_dequant_factor=raw_config['data']['int_dequant_factor'], sigma_data=sigma_data)
     train_loader = DataLoader(
         train_data,
         batch_size = batch_size,
@@ -132,7 +133,7 @@ def main(args):
     )
     d_numerical, categories = train_data.d_numerical, train_data.categories
     
-    val_data = TabDiffDataset(dataname, data_dir, info, y_only=args.y_only, isTrain=False, dequant_dist=raw_config['data']['dequant_dist'], int_dequant_factor=raw_config['data']['int_dequant_factor'])
+    val_data = TabDiffDataset(dataname, data_dir, info, y_only=args.y_only, isTrain=False, dequant_dist=raw_config['data']['dequant_dist'], int_dequant_factor=raw_config['data']['int_dequant_factor'], sigma_data=sigma_data)
 
     ## Load Metrics
     real_data_path = f'synthetic/{dataname}/real.csv'

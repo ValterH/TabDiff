@@ -23,7 +23,7 @@ second_order_correction = true
 
 [diffusion_params.edm_params]
 precond = true
-sigma_data = 1.0
+sigma_data = 1.0 # 0.5 - original EDM hyperparameter
 net_conditioning = "sigma"
 
 [diffusion_params.noise_dist_params]
