@@ -9,5 +9,6 @@ impute/
 workspace/
 debug/
 tabdiff/result/
+/wandb
 
 **/ckpt/*
