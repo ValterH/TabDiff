@@ -248,6 +248,7 @@ class Trainer:
                 "ema_loss/d_loss": ema_mloss,
                 "ema_loss/total_loss": ema_total_loss
             }
+            log_dict.update(ema_loss_dict)
             
             # Save the best ema ckpt
             if ema_total_loss < best_ema_loss and self.curr_epoch > 4000:
