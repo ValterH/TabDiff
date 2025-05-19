@@ -20,7 +20,7 @@
 This repository provides the official implementation of TabDiff: a Mixed-type Diffusion Model for Tabular Data Generation (ICLR 2025).
 
 ## Latest Update
-
+- [2025.04]：The categorical-heavy dataset **[Diabetes](https://archive.ics.uci.edu/dataset/296/diabetes+130-us+hospitals+for+years+1999-2008)** evaluated in the paper has now been released!
 - [2025.02]：Our code is finally released! We have released part of the tested datasets. The rest will be released soon!
 
 ## Introduction
@@ -93,6 +93,11 @@ Then, create <NAME_OF_YOUR_DATASET>.json in [./data/Info](./data/Info). Write th
     "test_path": null,
 }
 ```
+
+### Important Notes When Creating the Info File
+- The MLE evaluation and the imputation task (see later sections for details) assume that one column of your data is the regression or classification target. To enable these tasks, you will need to specify `target_col_idx`. If you don't need to evalute MLE, you can comment out the following line: https://github.com/MinkaiXu/TabDiff/blob/0c4fc3bbfa19046d36c5dce64628df52d5c73d15/tabdiff/main.py#L152
+- The fields `target_col_idx`, `num_col_idx` and `cat_col_idx` must be multually exclusive—no column should appear in more than one of these lists. 
+- Set the task_type to "regression" if the target column is numerical, or "binclass" if it is categorical.
 
 Finally, run the following command to process your dataset:
 ```
@@ -193,4 +198,4 @@ url={https://openreview.net/forum?id=swvURjrt8z}
 ## Contact
 If you encounter any problem, please file an issue on this GitHub repo.
 
-If you have any question regarding the paper, please contact Minkai at [minkai@stanford.edu](minkai@stanford.edu).
+If you have any question regarding the paper, please contact Minkai at [minkai@stanford.edu](minkai@stanford.edu) or Juntong at [shisteve@usc.edu](shisteve@usc.edu).
